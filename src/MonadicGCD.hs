@@ -34,10 +34,10 @@ logGCD :: (Integral a, Show a) => a -> a -> Log a
 logGCD x y
  | x < y = logGCD y x
  | y == 0 = do
-     saveLog $ "Finished with " ++ show x
+     saveLog $ "Greatest Common Divisor found: " ++ show x
      return x
  | otherwise = do
-     saveLog $ show x ++ " mod " ++ show y ++ " = " ++ show (x `mod` y)
+     saveLog $ show x ++ " mod(" ++ show y ++ ") = " ++ show (x `mod` y)
      logGCD y (x `mod` y)
 
 
