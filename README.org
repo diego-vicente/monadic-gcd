@@ -2,6 +2,26 @@
 #+Author: Diego Vicente Martín
 #+Email:  diegovicente@protonmail.com
 
+
+I have been struggling with the concept of monads for a long time, and since I
+am writing my bachelor thesis in Haskell, it was about time to face this
+problem head-on, not by only using one of the provided monads but to trying to
+implement on of my own. Since I am not an expert in the field, I have to
+recommend you some previous literature that might help you more than I will:
+
+- [[http://learnyouahaskell.com/][Learn You a Haskell for Great Good]] is a super fun book for beginners in
+  Haskell that you can read online. It has chapters on functors and monads.
+- [[http://homepages.inf.ed.ac.uk/wadler/papers/marktoberdorf/baastad.pdf][Philip Wadler's papers on monads for functional programming]], that explain the
+  basic concepts of monads and goes through the main types of monads.
+
+If you have already read this but you are not sure yet on how to implement a
+monad in Haskell, maybe this little example will help you and you will save
+visiting some of the dead ends I had to face.
+
+Once again I am not an expert, so feel free to open an issue to give any kind
+of feedback: improvements of the explanation, corrections on concepts, better
+tips, more literature... Thank you, dear reader!
+
 * An example: Euclidean Algorithm
 
 ** A pure approach
@@ -50,8 +70,10 @@ monad.
 ** Turning ~Log~ into a monad
 
 In Haskell, for a type to be a monad it has to be also a functor and
-applicative; so in this example we will implement everything from scratch,
-because it is a healthy exercise to check if your data makes sense as a monad.
+applicative. Don't worry though, all monads are by definition functor and
+applicatives, so if you really need to turn your data into a monad there will
+be no problem. It is a healthy exercise to check if your data makes sense as a
+monad.
 
 To make a ~Log~ an instance of the ~Functor~ class, we need to define its
 behavior with ~fmap~:
@@ -150,3 +172,38 @@ We can see how now the trace is nicely printed, and we have only modified the
 GCD function as much as we would have done it in an imperative language. Monads
 principle advantage is modularity, that helps us isolate the secondary effects
 keeping the purity. 
+
+** Do I really have to do all this?
+
+Actually, *no*. This was just an example on how to build a super simple monadic
+type, but it is so simple and common that Haskell provides you with its own
+implementation, ~Control.Monad.Writer~. If you ever feel like you need it in
+the real world, don't reinvent the wheel and just use the provided one.
+
+Also, even though I said that it is a healthy exercise to think if your data is
+as well a functor and applicative, but that is indeed not necessary either. If
+you are struggling with it, you can use the functions provided by the ~Monad~
+class to define ~Functor~ and ~Applicative~ instances like this:
+
+#+BEGIN_SRC haskell
+import Control.Monad (liftM, ap)
+
+instance Functor Log where
+  fmap = liftM
+
+instance Applicative Log where
+  pure  = return
+  (<*>) = ap
+#+END_SRC
+
+And then just focus on defining the ~Monad~ instance. There might be a more
+efficient way to define it, but this should work anyway for all cases. Just be
+sure of checking if the data really makes sense as a monad before actually
+implementing it as such.
+
+* Further reading
+
+After understanding this, is probably useful to read:
+
+- [[http://members.chello.nl/hjgtuyl/tourdemonad.html]["A tour of the Haskell Monad functions" by Henk-Jan van Tuyl]], that describes
+  the different functions that the ~Monad~ class offers in Haskell.
