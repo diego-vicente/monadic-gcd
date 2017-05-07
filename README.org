@@ -1,0 +1,57 @@
+#+Title:  Learning Monads in a Example
+#+Author: Diego Vicente Martín
+#+Email:  diegovicente@protonmail.com
+
+* An example: Euclidean Algorithm
+
+** A pure approach
+
+One of the easiest and prettiest examples to program in Haskell is the
+[[https://en.wikipedia.org/wiki/Euclidean_algorithm][Euclidean Algorithm]] to find the Greatest Common Divisor of two given
+numbers. We can see the code for that function here:
+
+#+BEGIN_SRC haskell
+simpleGCD :: (Integral a) => a -> a -> a
+simpleGCD a b
+  | a < b          = simpleGCD b a
+  | a `mod` b == 0 = b
+  | otherwise      = simpleGCD b (a `mod` b)
+#+END_SRC
+
+This function receives to integer numbers, and computes their remainder
+operation recursively until 0 is found. This codes exhibits and it works like a
+charm: 
+
+#+BEGIN_SRC
+λ> simpleGCD 9282 12376
+3094
+(0.01 secs, 4128256 bytes)
+λ> simpleGCD 9293 12376
+1
+(0.01 secs, 4129080 bytes)
+#+END_SRC
+
+However, what if we want to get a trace of the execution performed? In a
+different language like Python we could think of printing the steps in each
+iteration, but that implies secondary effects and is not that easy to do
+something like that in a purely functional environment like the one Haskell
+offers. Another option is to create a type ~Log~, that contains both the value
+and the a list of strings:
+
+#+BEGIN_SRC haskell
+data Log a = Log { getValue :: a, getLogs :: [String] } deriving Show
+#+END_SRC
+
+In that list of strings, we can add each of the steps performed in the
+recursive call, but that will create a huge mess and the code will be barely
+readable. What we can do is to check if it makes sense to implement ~Log~ as a
+monad.
+
+** Turning ~Log~ into a monad
+
+In Haskell, for a type to be a monad it has to be also a functor and
+applicative; so in this example we will implement everything from scratch,
+because it is a healthy exercise to check if your data makes sense as a monad.
+
+
+
