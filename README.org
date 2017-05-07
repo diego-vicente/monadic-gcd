@@ -1,4 +1,4 @@
-#+Title:  Learning Monads in a Example
+#+Title:  Learning Monads in an Example
 #+Author: Diego Vicente Martín
 #+Email:  diegovicente@protonmail.com
 
@@ -203,7 +203,7 @@ implementing it as such.
 
 * Further reading
 
-After understanding this, is probably useful to read:
+After understanding this, it is probably useful to read:
 
 - [[http://members.chello.nl/hjgtuyl/tourdemonad.html]["A tour of the Haskell Monad functions" by Henk-Jan van Tuyl]], that describes
   the different functions that the ~Monad~ class offers in Haskell.
