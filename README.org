@@ -94,3 +94,59 @@ behavior we have been trying to achieve: every time we want to bind a ~Log~
 object to the results of a function that takes the value of a ~Log~ and returns
 a new log, we take the value returned by the function but we append the logs of
 the new function to the list of the old ones.
+
+Although it may seem strange to do it like so (using ~>>=~), we need to notice
+that this is the real operators that a do-block uses as syntactic sugar; taking
+this into account we could create a function to store the new logs in a dummy
+~Log~ before being appended to the object by the end of recursion:
+
+#+BEGIN_SRC haskell
+saveLog :: String -> Log ()
+saveLog str = Log () [str]
+#+END_SRC
+
+Although this function may seem unnecessary (and it kind of is), it provides a
+cleaner syntax and it is actually replicated in the provided ~Writer~ monad as
+~tell~.
+
+Using all these pieces, we can finally update the algorithm to perform the
+logging of operations! In each guard (except the swapping one) we just need to
+create a do-block were we log a message and then bind a value to that
+block. The final version of the function is:
+
+#+BEGIN_SRC haskell
+logGCD :: (Integral a, Show a) => a -> a -> Log a
+logGCD x y
+ | x < y = logGCD y x
+ | y == 0 = do
+     saveLog $ "Greatest Common Divisor found: " ++ show x
+     return x
+ | otherwise = do
+     saveLog $ show x ++ " mod(" ++ show y ++ ") = " ++ show (x `mod` y)
+     logGCD y (x `mod` y)
+#+END_SRC
+
+We can try the function with the ~stepsGCD~ function that will print all the
+logs in a nice way:
+
+#+BEGIN_SRC 
+λ> stepsGCD 9282 12376
+12376 mod(9282) = 3094
+9282 mod(3094) = 0
+Greatest Common Divisor found: 3094
+(0.01 secs, 2575200 bytes)
+λ> stepsGCD 9293 12376
+12376 mod(9293) = 3083
+9293 mod(3083) = 44
+3083 mod(44) = 3
+44 mod(3) = 2
+3 mod(2) = 1
+2 mod(1) = 0
+Greatest Common Divisor found: 1
+(0.01 secs, 2575400 bytes)
+#+END_SRC
+
+We can see how now the trace is nicely printed, and we have only modified the
+GCD function as much as we would have done it in an imperative language. Monads
+principle advantage is modularity, that helps us isolate the secondary effects
+keeping the purity. 
