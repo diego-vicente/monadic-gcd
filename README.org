@@ -53,5 +53,44 @@ In Haskell, for a type to be a monad it has to be also a functor and
 applicative; so in this example we will implement everything from scratch,
 because it is a healthy exercise to check if your data makes sense as a monad.
 
+To make a ~Log~ an instance of the ~Functor~ class, we need to define its
+behavior with ~fmap~:
 
+#+BEGIN_SRC haskell
+instance Functor Log where
+  fmap f (Log x logs) = Log (f x) logs
+#+END_SRC
 
+Here, we define that every time that a function ~f :: a -> b~ is mapped to a
+~Log a~, we want to apply it to the value and let the list of logs as it
+is. Next step is to define the data as ~Applicative~, which implies the next
+functions:
+
+#+BEGIN_SRC haskell
+instance Applicative Log where
+  pure x = Log x []
+  Log f log <*> Log x log' = Log (f x) (log ++ log')
+#+END_SRC
+
+Where we define that ~pure~ can turn a value into a ~Log~ by creating an object
+with that value and an empty list of logs. The ~<*>~ operator seems a little
+bit more obscure, but in case there is a function contained in a ~Log~ it
+should be appended to the value of another ~Log~ and both lists of logs should
+be appended. This makes perfect sense when we think about the creation of
+partial functions in Haskell.
+
+Finally, we are able now to make ~Log~ an instance of ~Monad~. To do so, we
+must define:
+
+#+BEGIN_SRC haskell
+instance Monad Log where
+  return = pure
+  (Log x log) >>= f = let Log y new = f x in Log y (log ++ new)
+#+END_SRC
+
+~return~ is used to include a new value in a ~Log~, so we can reuse the
+definition of ~pure~. On the other hand, the bind operator (~>>=~) defines the
+behavior we have been trying to achieve: every time we want to bind a ~Log~
+object to the results of a function that takes the value of a ~Log~ and returns
+a new log, we take the value returned by the function but we append the logs of
+the new function to the list of the old ones.
