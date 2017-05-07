@@ -19,7 +19,7 @@ instance Applicative Log where
   Log f log <*> Log x log' = Log (f x) (log ++ log')
 
 instance Monad Log where
-  return x = Log x []
+  return = pure
   (Log x log) >>= f = let Log y new = f x in Log y (log ++ new)
 
 
