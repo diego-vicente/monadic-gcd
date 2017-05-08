@@ -173,6 +173,59 @@ GCD function as much as we would have done it in an imperative language. Monads
 principle advantage is modularity, that helps us isolate the secondary effects
 keeping the purity. 
 
+** The Monad laws
+
+It is really important to understand that the monad type comes with some laws
+that your type has to fulfill. These laws are:
+
+- The *left-identity*: Basically, that ~return x >>= f~ should have the exact
+  same result as ~f x~. By trying our type with ~logGCD~:
+
+#+BEGIN_SRC
+λ> return 3 >>= (logGCD 5)
+Log {getValue = 1, getLogs = ["5 mod(3) = 2","3 mod(2) = 1","2 mod(1) = 0",
+"Greatest Common Divisor found: 1"]}
+λ> (logGCD 5) 3
+Log {getValue = 1, getLogs = ["5 mod(3) = 2","3 mod(2) = 1","2 mod(1) = 0",
+"Greatest Common Divisor found: 1"]}
+#+END_SRC
+
+- The *right-identity*: Similar to the previous one, ~m >>= return~ should be
+  equal to ~m~.
+
+#+BEGIN_SRC
+λ> let m = logGCD 5 3
+λ> m
+Log {getValue = 1, getLogs = ["5 mod(3) = 2","3 mod(2) = 1","2 mod(1) = 0",
+"Greatest Common Divisor found: 1"]}
+λ> m >>= return
+Log {getValue = 1, getLogs = ["5 mod(3) = 2","3 mod(2) = 1","2 mod(1) = 0",
+"Greatest Common Divisor found: 1"]}
+#+END_SRC
+
+- The *associativity law*, that states that a chain of monadic operations
+  should not be dependant on its nesting.
+
+#+BEGIN_SRC
+λ> return 14 >>= (logGCD 35) >>= (logGCD 21)
+Log {getValue = 7, getLogs = ["35 mod(14) = 7","14 mod(7) = 0",
+"Greatest Common Divisor found: 7","21 mod(7) = 0",
+"Greatest Common Divisor found: 7"]}
+λ> ( return 14 >>= (logGCD 35) ) >>= (logGCD 21)
+Log {getValue = 7, getLogs = ["35 mod(14) = 7","14 mod(7) = 0",
+"Greatest Common Divisor found: 7","21 mod(7) = 0",
+"Greatest Common Divisor found: 7"]}
+λ> return 14 >>= (\x -> ((logGCD 35) x) >>= (logGCD 14))
+Log {getValue = 7, getLogs = ["35 mod(14) = 7","14 mod(7) = 0",
+"Greatest Common Divisor found: 7","14 mod(7) = 0",
+"Greatest Common Divisor found: 7"]}
+#+END_SRC
+
+Because yes, thanks to the Monad value, we can chain GCD operations to obtain
+combined logs. Super cool, isn't it?
+
+
+
 ** Do I really have to do all this?
 
 Actually, *no*. This was just an example on how to build a super simple monadic
